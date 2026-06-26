@@ -41,6 +41,24 @@ textarea {
   flex: 1;
 }
 
+.app-error {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.app-error h1 {
+  color: #10231f;
+  margin: 0;
+}
+
+.app-error p {
+  color: #52645f;
+  line-height: 1.6;
+}
+
 .navbar {
   align-items: center;
   background: rgba(255, 255, 255, 0.96);
