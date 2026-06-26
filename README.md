@@ -48,6 +48,17 @@ Frontend da plataforma EcoLivros, desenvolvido com React e Vite.
 - Configuracao de rewrite para Vercel.
 - Validacao de build.
 
+## Deploy
+
+O projeto usa `HashRouter` e `base: './'` no Vite para evitar tela branca em hospedagens que nao aplicam rewrite de SPA corretamente.
+
+Na Vercel, mantenha:
+
+- Framework Preset: Vite
+- Install Command: `npm install`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
 ## Como executar
 
 ```bash
