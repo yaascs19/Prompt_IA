@@ -35,7 +35,7 @@ function DetalhesLivro() {
             src={book.imageUrl}
             alt={book.title}
             className="details-cover"
-            style={{ objectFit: 'cover', width: '220px', height: '300px', borderRadius: '12px' }}
+            style={{ objectFit: 'contain', width: '100%', maxWidth: '320px', maxHeight: '420px', borderRadius: '12px', background: '#f5f5f5' }}
           />
         ) : (
           <div className="details-cover book-card__cover--green">
