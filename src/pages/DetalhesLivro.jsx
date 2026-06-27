@@ -57,7 +57,7 @@ function DetalhesLivro() {
           </dl>
 
           <div className="details-actions">
-            <Button as={Link} to="/chat">Conversar no chat</Button>
+            <Button as={Link} to={`/chat?userId=${book.ownerId}`}>Conversar com o proprietario</Button>
             <Button as={Link} to="/feed" variant="ghost">Voltar ao feed</Button>
           </div>
         </article>

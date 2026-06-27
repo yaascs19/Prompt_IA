@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Avatar from '../components/common/Avatar.jsx';
 import Button from '../components/common/Button.jsx';
 import { getUser } from '../services/authService.js';
@@ -11,10 +12,20 @@ function Chat() {
   const [text, setText] = useState('');
   const bottomRef = useRef(null);
   const me = getUser();
+  const [searchParams] = useSearchParams();
+  const targetUserId = searchParams.get('userId');
 
   useEffect(() => {
-    getContacts().then((data) => setContacts(Array.isArray(data) ? data : []));
-  }, []);
+    getContacts().then((data) => {
+      const list = Array.isArray(data) ? data : [];
+      setContacts(list);
+      if (targetUserId) {
+        const found = list.find((c) => String(c.id) === targetUserId);
+        if (found) setSelected(found);
+        else setSelected({ id: Number(targetUserId), name: 'Proprietario' });
+      }
+    });
+  }, [targetUserId]);
 
   useEffect(() => {
     if (!selected) return;
