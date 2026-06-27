@@ -10,7 +10,7 @@ function Feed() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getBooks().then(setBooks).finally(() => setLoading(false));
+    getBooks().then((data) => setBooks(Array.isArray(data) ? data : [])).finally(() => setLoading(false));
   }, []);
 
   const donations = books.filter((b) => b.type === 'Doacao').length;

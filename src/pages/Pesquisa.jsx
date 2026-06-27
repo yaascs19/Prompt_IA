@@ -10,7 +10,7 @@ function Pesquisa() {
 
   useEffect(() => {
     setLoading(true);
-    searchBooks(searchTerm).then(setResults).finally(() => setLoading(false));
+    searchBooks(searchTerm).then((data) => setResults(Array.isArray(data) ? data : [])).finally(() => setLoading(false));
   }, [searchTerm]);
 
   function handleSubmit(event) {
