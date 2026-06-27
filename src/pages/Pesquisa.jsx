@@ -1,12 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import BookCard from '../components/books/BookCard.jsx';
 import SearchBar from '../components/common/SearchBar.jsx';
 import { searchBooks } from '../services/booksService.js';
 
 function Pesquisa() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const results = useMemo(() => searchBooks(searchTerm), [searchTerm]);
+  useEffect(() => {
+    setLoading(true);
+    searchBooks(searchTerm).then(setResults).finally(() => setLoading(false));
+  }, [searchTerm]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -29,10 +34,12 @@ function Pesquisa() {
         <span>{searchTerm ? `Busca por "${searchTerm}"` : 'Mostrando todos os livros'}</span>
       </div>
 
-      {results.length > 0 ? (
+      {loading ? (
+        <p>Buscando...</p>
+      ) : results.length > 0 ? (
         <div className="book-grid book-grid--feed">
           {results.map((book) => (
-            <BookCard key={book.id} {...book} />
+            <BookCard key={book.id} {...book} owner={book.ownerName} />
           ))}
         </div>
       ) : (
