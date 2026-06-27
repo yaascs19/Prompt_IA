@@ -1,24 +1,55 @@
+import { useEffect, useRef, useState } from 'react';
 import Avatar from '../components/common/Avatar.jsx';
 import Button from '../components/common/Button.jsx';
-
-const messages = [
-  { author: 'Bianca Lima', text: 'Ola! O livro ainda esta disponivel?', type: 'received' },
-  { author: 'Marina Souza', text: 'Sim, posso entregar na escola amanha.', type: 'sent' },
-  { author: 'Bianca Lima', text: 'Perfeito. Tenho interesse na doacao.', type: 'received' },
-];
+import { getUser } from '../services/authService.js';
+import { getContacts, getConversation, sendMessage } from '../services/chatService.js';
 
 function Chat() {
+  const [contacts, setContacts] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState('');
+  const bottomRef = useRef(null);
+  const me = getUser();
+
+  useEffect(() => {
+    getContacts().then((data) => setContacts(Array.isArray(data) ? data : []));
+  }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    getConversation(selected.id).then((data) => setMessages(Array.isArray(data) ? data : []));
+  }, [selected]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!text.trim() || !selected) return;
+    const msg = await sendMessage(selected.id, text.trim());
+    setMessages((prev) => [...prev, msg]);
+    setText('');
+  }
+
   return (
     <section className="section page-section">
       <div className="chat-layout">
         <aside className="chat-sidebar">
           <span className="eyebrow">Conversas</span>
           <h1>Chat</h1>
-          {['Bianca Lima', 'Lucas Pereira', 'Rafael Nunes'].map((name) => (
-            <div className="chat-contact" key={name}>
-              <Avatar name={name} />
+          {contacts.length === 0 && <p style={{ fontSize: '0.875rem' }}>Nenhuma conversa ainda.</p>}
+          {contacts.map((contact) => (
+            <div
+              className="chat-contact"
+              key={contact.id}
+              onClick={() => setSelected(contact)}
+              style={{ cursor: 'pointer', background: selected?.id === contact.id ? 'var(--color-surface)' : '' }}
+            >
+              <Avatar name={contact.name} />
               <div>
-                <strong>{name}</strong>
+                <strong>{contact.name}</strong>
                 <span>Interesse em livro</span>
               </div>
             </div>
@@ -26,27 +57,42 @@ function Chat() {
         </aside>
 
         <div className="chat-panel">
-          <header className="chat-panel__header">
-            <Avatar name="Bianca Lima" />
-            <div>
-              <strong>Bianca Lima</strong>
-              <span>Olhos d Agua</span>
-            </div>
-          </header>
+          {!selected ? (
+            <div style={{ padding: '2rem' }}>Selecione uma conversa</div>
+          ) : (
+            <>
+              <header className="chat-panel__header">
+                <Avatar name={selected.name} />
+                <div>
+                  <strong>{selected.name}</strong>
+                </div>
+              </header>
 
-          <div className="chat-messages">
-            {messages.map((message) => (
-              <div className={`chat-message chat-message--${message.type}`} key={message.text}>
-                <span>{message.author}</span>
-                <p>{message.text}</p>
+              <div className="chat-messages">
+                {messages.map((msg) => (
+                  <div
+                    className={`chat-message chat-message--${msg.senderId === me?.id ? 'sent' : 'received'}`}
+                    key={msg.id}
+                  >
+                    <span>{msg.senderName}</span>
+                    <p>{msg.text}</p>
+                  </div>
+                ))}
+                <div ref={bottomRef} />
               </div>
-            ))}
-          </div>
 
-          <form className="chat-compose">
-            <input aria-label="Mensagem" placeholder="Digite sua mensagem" type="text" />
-            <Button type="submit">Enviar</Button>
-          </form>
+              <form className="chat-compose" onSubmit={handleSubmit}>
+                <input
+                  aria-label="Mensagem"
+                  placeholder="Digite sua mensagem"
+                  type="text"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                />
+                <Button type="submit">Enviar</Button>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </section>
