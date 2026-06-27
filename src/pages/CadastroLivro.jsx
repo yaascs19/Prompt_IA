@@ -7,12 +7,24 @@ import { createBook } from '../services/booksService.js';
 
 function CadastroLivro() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ title: '', author: '', category: '', location: '', type: 'Doacao', condition: 'Bom', description: '' });
+  const [form, setForm] = useState({ title: '', author: '', category: '', location: '', type: 'Doacao', condition: 'Bom', description: '', imageUrl: '' });
+  const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.id.replace('book-', '')]: e.target.value }));
+  }
+
+  function handleImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreview(reader.result);
+      setForm((prev) => ({ ...prev, imageUrl: reader.result }));
+    };
+    reader.readAsDataURL(file);
   }
 
   async function handleSubmit(e) {
@@ -60,6 +72,18 @@ function CadastroLivro() {
               <option>Bom</option>
               <option>Usado</option>
             </select>
+          </div>
+
+          <div className="field form-grid__full">
+            <label htmlFor="book-image">Foto do livro</label>
+            <input id="book-image" type="file" accept="image/*" onChange={handleImage} />
+            {preview && (
+              <img
+                src={preview}
+                alt="Preview"
+                style={{ marginTop: '0.75rem', width: '120px', height: '160px', objectFit: 'cover', borderRadius: '8px' }}
+              />
+            )}
           </div>
 
           <TextArea
