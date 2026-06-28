@@ -19,6 +19,7 @@ function Chat() {
   const [text, setText] = useState('');
   const bottomRef = useRef(null);
   const me = getUser();
+  const isFirstLoad = useRef(true);
   const [searchParams] = useSearchParams();
   const targetUserId = searchParams.get('userId');
 
@@ -56,6 +57,10 @@ function Chat() {
   }, [selected]);
 
   useEffect(() => {
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return;
+    }
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
