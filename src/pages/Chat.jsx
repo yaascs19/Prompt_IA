@@ -4,6 +4,13 @@ import Avatar from '../components/common/Avatar.jsx';
 import Button from '../components/common/Button.jsx';
 import { getUser } from '../services/authService.js';
 import { getContacts, getConversation, sendMessage } from '../services/chatService.js';
+import API_URL from '../services/api.js';
+
+async function getUserById(id) {
+  const res = await fetch(`${API_URL}/api/users/${id}`);
+  if (!res.ok) return null;
+  return res.json();
+}
 
 function Chat() {
   const [contacts, setContacts] = useState([]);
@@ -19,10 +26,23 @@ function Chat() {
     getContacts().then((data) => {
       const list = Array.isArray(data) ? data : [];
       setContacts(list);
+
       if (targetUserId) {
         const found = list.find((c) => String(c.id) === targetUserId);
-        if (found) setSelected(found);
-        else setSelected({ id: Number(targetUserId), name: 'Proprietario' });
+        if (found) {
+          setSelected(found);
+        } else {
+          getUserById(targetUserId).then((u) => {
+            if (u) {
+              const contact = { id: u.id, name: u.name };
+              setContacts((prev) => {
+                const exists = prev.find((c) => c.id === contact.id);
+                return exists ? prev : [contact, ...prev];
+              });
+              setSelected(contact);
+            }
+          });
+        }
       }
     });
   }, [targetUserId]);
