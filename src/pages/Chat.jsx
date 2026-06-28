@@ -19,7 +19,7 @@ function Chat() {
   const [text, setText] = useState('');
   const bottomRef = useRef(null);
   const me = getUser();
-  const isFirstLoad = useRef(true);
+  const prevMsgCount = useRef(0);
   const [searchParams] = useSearchParams();
   const targetUserId = searchParams.get('userId');
 
@@ -43,6 +43,7 @@ function Chat() {
 
   useEffect(() => {
     if (!selected) return;
+    prevMsgCount.current = 0;
     getConversation(selected.id)
       .then((data) => setMessages(Array.isArray(data) ? data : []))
       .catch(() => setMessages([]));
@@ -57,11 +58,12 @@ function Chat() {
   }, [selected]);
 
   useEffect(() => {
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      return;
+    if (messages.length > prevMsgCount.current) {
+      if (prevMsgCount.current > 0) {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+      prevMsgCount.current = messages.length;
     }
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   async function handleSubmit(e) {
