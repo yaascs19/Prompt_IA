@@ -22,34 +22,29 @@ function Chat() {
   const [searchParams] = useSearchParams();
   const targetUserId = searchParams.get('userId');
 
+  // busca contatos existentes
   useEffect(() => {
-    getContacts().then((data) => {
-      const list = Array.isArray(data) ? data : [];
-      setContacts(list);
+    getContacts()
+      .then((data) => setContacts(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
-      if (targetUserId) {
-        const found = list.find((c) => String(c.id) === targetUserId);
-        if (found) {
-          setSelected(found);
-        } else {
-          getUserById(targetUserId).then((u) => {
-            if (u) {
-              const contact = { id: u.id, name: u.name };
-              setContacts((prev) => {
-                const exists = prev.find((c) => c.id === contact.id);
-                return exists ? prev : [contact, ...prev];
-              });
-              setSelected(contact);
-            }
-          });
-        }
-      }
+  // quando vier userId na URL, busca o usuário e seleciona direto
+  useEffect(() => {
+    if (!targetUserId) return;
+    getUserById(targetUserId).then((u) => {
+      if (!u) return;
+      const contact = { id: u.id, name: u.name };
+      setContacts((prev) => prev.find((c) => c.id === contact.id) ? prev : [contact, ...prev]);
+      setSelected(contact);
     });
   }, [targetUserId]);
 
   useEffect(() => {
     if (!selected) return;
-    getConversation(selected.id).then((data) => setMessages(Array.isArray(data) ? data : []));
+    getConversation(selected.id)
+      .then((data) => setMessages(Array.isArray(data) ? data : []))
+      .catch(() => setMessages([]));
   }, [selected]);
 
   useEffect(() => {
@@ -100,6 +95,11 @@ function Chat() {
               </header>
 
               <div className="chat-messages">
+                {messages.length === 0 && (
+                  <p style={{ padding: '1rem', color: 'var(--color-text-muted, #888)', fontSize: '0.875rem' }}>
+                    Nenhuma mensagem ainda. Diga ola!
+                  </p>
+                )}
                 {messages.map((msg) => (
                   <div
                     className={`chat-message chat-message--${msg.senderId === me?.id ? 'sent' : 'received'}`}
