@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Badge from '../components/common/Badge.jsx';
 import Button from '../components/common/Button.jsx';
-import { getBookById } from '../services/booksService.js';
+import { getUser } from '../services/authService.js';
+import { deleteBook, getBookById } from '../services/booksService.js';
 
 function DetalhesLivro() {
   const { bookId } = useParams();
+  const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
+  const me = getUser();
+  const isOwner = me && book && me.id === book.ownerId;
+
+  async function handleDelete() {
+    if (!confirm('Tem certeza que deseja excluir este livro?')) return;
+    await deleteBook(bookId);
+    navigate('/feed');
+  }
 
   useEffect(() => {
     getBookById(bookId).then(setBook).catch(() => setBook(null)).finally(() => setLoading(false));
@@ -57,7 +67,11 @@ function DetalhesLivro() {
           </dl>
 
           <div className="details-actions">
-            <Button as={Link} to={`/chat?userId=${book.ownerId}`}>Conversar com o proprietario</Button>
+            {isOwner ? (
+              <Button onClick={handleDelete} style={{ background: '#c0392b', color: '#fff', borderColor: '#c0392b' }}>Excluir livro</Button>
+            ) : (
+              <Button as={Link} to={`/chat?userId=${book.ownerId}`}>Conversar com o proprietario</Button>
+            )}
             <Button as={Link} to="/feed" variant="ghost">Voltar ao feed</Button>
           </div>
         </article>
