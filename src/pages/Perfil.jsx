@@ -117,7 +117,9 @@ function Perfil() {
             {profile.books.map((book) => (
               <div className="list-row" key={book.id}>
                 <Link to={`/livros/${book.id}`}>{book.title}</Link>
-                <Badge tone="blue">{book.type}</Badge>
+                <Badge tone={book.status === 'concluido' ? 'green' : 'blue'}>
+                  {book.status === 'concluido' ? 'Concluido' : book.type}
+                </Badge>
               </div>
             ))}
           </div>

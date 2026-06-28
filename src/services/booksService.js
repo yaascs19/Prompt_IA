@@ -31,6 +31,10 @@ export function deleteBook(id) {
   return authFetch(`/api/books/${id}`, { method: 'DELETE' });
 }
 
+export function concludeBook(id) {
+  return authFetch(`/api/books/${id}/conclude`, { method: 'PATCH' });
+}
+
 export function getMyBooks() {
   return authFetch('/api/books/my');
 }

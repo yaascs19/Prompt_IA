@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Badge from '../components/common/Badge.jsx';
 import Button from '../components/common/Button.jsx';
 import { getUser } from '../services/authService.js';
-import { deleteBook, getBookById } from '../services/booksService.js';
+import { concludeBook, deleteBook, getBookById } from '../services/booksService.js';
 
 function DetalhesLivro() {
   const { bookId } = useParams();
@@ -17,6 +17,12 @@ function DetalhesLivro() {
     if (!confirm('Tem certeza que deseja excluir este livro?')) return;
     await deleteBook(bookId);
     navigate('/feed');
+  }
+
+  async function handleConclude() {
+    if (!confirm('Marcar este livro como concluido?')) return;
+    const updated = await concludeBook(bookId);
+    setBook(updated);
   }
 
   useEffect(() => {
@@ -55,6 +61,7 @@ function DetalhesLivro() {
 
         <article className="details-content">
           <Badge tone={book.type === 'Troca' ? 'blue' : 'green'}>{book.type}</Badge>
+          {book.status === 'concluido' && <Badge tone="green" style={{ marginLeft: 8 }}>Concluido</Badge>}
           <h1>{book.title}</h1>
           <p className="details-content__author">{book.author}</p>
           <p>{book.description}</p>
@@ -68,7 +75,12 @@ function DetalhesLivro() {
 
           <div className="details-actions">
             {isOwner ? (
-              <Button onClick={handleDelete} style={{ background: '#c0392b', color: '#fff', borderColor: '#c0392b' }}>Excluir livro</Button>
+              <>
+                {book.status !== 'concluido' && (
+                  <Button onClick={handleConclude} style={{ background: '#7c5cbf', color: '#fff', borderColor: '#7c5cbf' }}>Marcar como concluido</Button>
+                )}
+                <Button onClick={handleDelete} style={{ background: '#c0392b', color: '#fff', borderColor: '#c0392b' }}>Excluir livro</Button>
+              </>
             ) : (
               <Button as={Link} to={`/chat?userId=${book.ownerId}`}>Conversar com o proprietario</Button>
             )}
