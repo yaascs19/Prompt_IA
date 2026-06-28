@@ -45,6 +45,14 @@ function Chat() {
     getConversation(selected.id)
       .then((data) => setMessages(Array.isArray(data) ? data : []))
       .catch(() => setMessages([]));
+
+    const interval = setInterval(() => {
+      getConversation(selected.id)
+        .then((data) => setMessages(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [selected]);
 
   useEffect(() => {
