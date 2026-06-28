@@ -34,7 +34,7 @@ function Chat() {
     if (!targetUserId) return;
     getUserById(targetUserId).then((u) => {
       if (!u) return;
-      const contact = { id: u.id, name: u.name };
+      const contact = { id: u.id, name: u.name, avatarUrl: u.token };
       setContacts((prev) => prev.find((c) => c.id === contact.id) ? prev : [contact, ...prev]);
       setSelected(contact);
     });
@@ -81,7 +81,7 @@ function Chat() {
               onClick={() => setSelected(contact)}
               style={{ cursor: 'pointer', background: selected?.id === contact.id ? 'var(--color-surface)' : '' }}
             >
-              <Avatar name={contact.name} />
+              <Avatar name={contact.name} src={contact.avatarUrl} />
               <div>
                 <strong>{contact.name}</strong>
                 <span>Interesse em livro</span>
@@ -96,7 +96,7 @@ function Chat() {
           ) : (
             <>
               <header className="chat-panel__header">
-                <Avatar name={selected.name} />
+                <Avatar name={selected.name} src={selected.avatarUrl} />
                 <div>
                   <strong>{selected.name}</strong>
                 </div>
